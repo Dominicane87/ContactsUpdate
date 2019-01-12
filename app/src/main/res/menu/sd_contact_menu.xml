@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/delete_item"
+        android:title="Delite"
+        android:icon="@drawable/ic_delete"
+        app:showAsAction="always"
+        android:visible="true"/>
+    <item android:id="@+id/save_item"
+        android:title="Save"
+        android:icon="@drawable/ic_save"
+        app:showAsAction="always"
+        android:visible="true"/>
+    <item android:id="@+id/edit_item"
+        android:title="Edit"
+        android:icon="@drawable/ic_edit"
+        app:showAsAction="always"
+        android:visible="true"/>
+</menu>
