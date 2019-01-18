@@ -22,10 +22,24 @@ import com.vlavladada.hw2112.model.PasswordValidationException;
 
 import java.io.IOException;
 
-public class LoginFragment extends Fragment implements View.OnClickListener {
-    private ProgressBar myProgress;
-    private EditText inputEmail, inputPassword;
-    private Button regBtn, loginBtn;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
+public class LoginFragment extends Fragment {
+    @BindView(R.id.myProgress)
+    ProgressBar myProgress;
+    @BindView(R.id.inputEmail)
+    EditText inputEmail;
+    @BindView(R.id.inputPassword)
+    EditText inputPassword;
+    @BindView(R.id.regBtn)
+    Button regBtn;
+    @BindView(R.id.loginBtn)
+    Button loginBtn;
+
+    private Unbinder unbinder;
 
     public LoginFragment() {
 
@@ -36,50 +50,53 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_login, container, false);
-        myProgress = view.findViewById(R.id.myProgress);
-        inputEmail = view.findViewById(R.id.inputEmail);
-        inputPassword = view.findViewById(R.id.inputPassword);
-        regBtn = view.findViewById(R.id.regBtn);
-        loginBtn = view.findViewById(R.id.loginBtn);
 
-        loginBtn.setOnClickListener(this);
-        regBtn.setOnClickListener(this);
+        unbinder = ButterKnife.bind(this, view);
+
         return view;
     }
 
     @Override
-    public void onClick(View v) {
-        if(v.getId()==R.id.regBtn){
-            String email = inputEmail.getText().toString();
-            String password = inputPassword.getText().toString();
-            try {
-                checkEmail(email);
-                checkPassword(password);
-                new RegistrationTask(email,password).execute();
-            }catch (EmailValidationException e){
-                showEmailError(e.getMessage());
-            }catch (PasswordValidationException e){
-                showPasswordError(e.getMessage());
-            }
-        } else if (v.getId()==R.id.loginBtn){
-            String email = inputEmail.getText().toString();
-            String password = inputPassword.getText().toString();
-            try{
-                checkEmail(email);
-                checkPassword(password);
-                showProgress();
-                new LoginTask(email,password).execute();
-            }catch (EmailValidationException e){
-                showEmailError(e.getMessage());
-                inputEmail.setError(e.getMessage());
-            }catch (PasswordValidationException e){
-                inputPassword.setError(e.getMessage());
-                showPasswordError(e.getMessage());
-            }
+    public void onDestroyView() {
+        unbinder.unbind();
+        super.onDestroyView();
+    }
+
+    @OnClick(R.id.regBtn)
+    public void onClickRegBtn() {
+        String email = inputEmail.getText().toString();
+        String password = inputPassword.getText().toString();
+        try {
+            checkEmail(email);
+            checkPassword(password);
+            new RegistrationTask(email, password).execute();
+        } catch (EmailValidationException e) {
+            showEmailError(e.getMessage());
+        } catch (PasswordValidationException e) {
+            showPasswordError(e.getMessage());
         }
     }
 
-    private void showProgress(){
+    @OnClick(R.id.loginBtn)
+    public void onClickLoginBtn() {
+        String email = inputEmail.getText().toString();
+        String password = inputPassword.getText().toString();
+        try {
+            checkEmail(email);
+            checkPassword(password);
+            showProgress();
+            new LoginTask(email, password).execute();
+        } catch (EmailValidationException e) {
+            showEmailError(e.getMessage());
+            inputEmail.setError(e.getMessage());
+        } catch (PasswordValidationException e) {
+            inputPassword.setError(e.getMessage());
+            showPasswordError(e.getMessage());
+        }
+    }
+
+
+    private void showProgress() {
         myProgress.setVisibility(View.VISIBLE);
         inputEmail.setVisibility(View.INVISIBLE);
         inputPassword.setVisibility(View.INVISIBLE);
@@ -87,7 +104,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         regBtn.setVisibility(View.INVISIBLE);
     }
 
-    private void hideProgress(){
+    private void hideProgress() {
         myProgress.setVisibility(View.GONE);
         inputEmail.setVisibility(View.VISIBLE);
         inputPassword.setVisibility(View.VISIBLE);
@@ -95,11 +112,11 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         loginBtn.setVisibility(View.VISIBLE);
     }
 
-    private void showEmailError(String error){
+    private void showEmailError(String error) {
         inputEmail.setError(error);
     }
 
-    private void showPasswordError(String error){
+    private void showPasswordError(String error) {
         inputPassword.setError(error);
     }
 
@@ -113,38 +130,38 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 .show();
     }
 
-    private void showNextFragment(){
+    private void showNextFragment() {
         ListFragment listFragment = new ListFragment();
         getFragmentManager().beginTransaction().replace(R.id.root, listFragment).commit();
     }
 
 
     private void checkEmail(String email) throws EmailValidationException {
-        if(email.isEmpty()){
+        if (email.isEmpty()) {
             throw new EmailValidationException("Email can't be empty!");
         }
 
         int at = email.indexOf("@");
-        if(at < 0) {
+        if (at < 0) {
             throw new EmailValidationException("Wrong email format! Example: name@mail.com");
         }
 
-        if(email.lastIndexOf("@") != at) {
+        if (email.lastIndexOf("@") != at) {
             throw new EmailValidationException("Wrong email format! Example: name@mail.com");
         }
 
         int dot = email.lastIndexOf(".");
-        if(dot < 0 || dot < at) {
+        if (dot < 0 || dot < at) {
             throw new EmailValidationException("Wrong email format! Example: name@mail.com");
         }
 
-        if(email.length() - 1 - dot <= 1) {
+        if (email.length() - 1 - dot <= 1) {
             throw new EmailValidationException("Wrong email format! Example: name@mail.com");
         }
     }
 
     private void checkPassword(String password) throws PasswordValidationException {
-        if(password.length() < 8) {
+        if (password.length() < 8) {
             throw new PasswordValidationException("Password length need be 8 or more symbols");
         }
         boolean[] tests = new boolean[4];
@@ -167,22 +184,22 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             }
         }
 
-        if(!tests[0]){
+        if (!tests[0]) {
             throw new PasswordValidationException("Password must contain at least one uppercase letter!");
         }
-        if(!tests[1]){
+        if (!tests[1]) {
             throw new PasswordValidationException("Password must contain at least one lowercase letter!");
         }
-        if(!tests[2]){
+        if (!tests[2]) {
             throw new PasswordValidationException("Password must contain at least one digit!");
         }
-        if(!tests[3]){
+        if (!tests[3]) {
             throw new PasswordValidationException("Password must contain at least one special symbol from ['$','~','-','_']!");
         }
     }
 
     private boolean isSpecSymbol(char c) {
-        char[] arr = {'$','~','-','_'};
+        char[] arr = {'$', '~', '-', '_'};
         for (char anArr : arr) {
             if (anArr == c) {
                 return true;
@@ -192,7 +209,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     }
 
 
-    private class RegistrationTask extends AsyncTask<Void,Void,String> {
+    private class RegistrationTask extends AsyncTask<Void, Void, String> {
         private String email, password;
         private boolean isSuccess = true;
 
@@ -210,13 +227,13 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         protected String doInBackground(Void... voids) {
             String result = "Registration OK";
             try {
-                String token = HttpProvider.getInstance().registration(email,password);
+                String token = HttpProvider.getInstance().registration(email, password);
                 StoreProvider.getInstance().saveToken(token);
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
                 result = "Connection error!Check your internet!";
                 isSuccess = false;
-            }catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 result = e.getMessage();
                 isSuccess = false;
@@ -227,16 +244,16 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         @Override
         protected void onPostExecute(String s) {
             hideProgress();
-            if (isSuccess){
+            if (isSuccess) {
                 showNextFragment();
-            }else{
-                Log.d("TAG", "reg onPostExecute: "+s);
+            } else {
+                Log.d("TAG", "reg onPostExecute: " + s);
                 showError(s);
             }
         }
     }
 
-    private class LoginTask extends AsyncTask<Void,Void,String>{
+    private class LoginTask extends AsyncTask<Void, Void, String> {
         private String email, password;
         private boolean isSuccess = true;
 
@@ -254,16 +271,16 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         protected String doInBackground(Void... voids) {
             String result = "Login OK";
             try {
-                String token = HttpProvider.getInstance().login(email,password);
+                String token = HttpProvider.getInstance().login(email, password);
                 StoreProvider.getInstance().saveToken(token);
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
                 result = "Connection error! Check your internet!";
                 isSuccess = false;
-            }catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 result = e.getMessage();
-                Log.d("TAG", "log onPostExecute: "+result);
+                Log.d("TAG", "log onPostExecute: " + result);
                 isSuccess = false;
             }
             return result;
@@ -272,9 +289,9 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         @Override
         protected void onPostExecute(String s) {
             hideProgress();
-            if (isSuccess){
+            if (isSuccess) {
                 showNextFragment();
-            }else{
+            } else {
                 showError(s);
             }
         }
@@ -292,14 +309,14 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             loginFragment = new LoginFragment();
             listFragment = new ListFragment();
             if (isLogined()) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.root, listFragment).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.root, listFragment).commit();
             } else {
-            getSupportFragmentManager().beginTransaction().replace(R.id.root, loginFragment).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.root, loginFragment).commit();
             }
         }
 
         private boolean isLogined() {
-            if (StoreProvider.getInstance().getToken()!=null){
+            if (StoreProvider.getInstance().getToken() != null) {
                 return true;
             }
             return false;

@@ -15,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -70,9 +71,11 @@ public class ListFragment extends Fragment implements MyAdapter.MyClickListener 
         View view = inflater.inflate(R.layout.fragment_list, container, false);
         adapter = new MyAdapter();
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
+        DividerItemDecoration divider=new DividerItemDecoration(getContext(),((LinearLayoutManager) layoutManager).getOrientation());
         recyclerView = view.findViewById(R.id.my_rv);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(layoutManager);
+        recyclerView.addItemDecoration(divider);
         emptyMsg = view.findViewById(R.id.emptyTxt);
         progressBar = view.findViewById(R.id.progressBar);
         adapter.setListener(this);
@@ -111,6 +114,16 @@ public class ListFragment extends Fragment implements MyAdapter.MyClickListener 
         }
 
         @Override
+        public boolean isLongPressDragEnabled() {
+            return true;
+        }
+
+        @Override
+        public boolean isItemViewSwipeEnabled() {
+            return true;
+        }
+
+        @Override
         public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
             return makeMovementFlags(ItemTouchHelper.DOWN | ItemTouchHelper.UP, ItemTouchHelper.END | ItemTouchHelper.START);
         }
@@ -131,9 +144,9 @@ public class ListFragment extends Fragment implements MyAdapter.MyClickListener 
                         .setAction("Cancel", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                contacts.addAll(contactsDeleted);
+
                                 contactsDeleted.clear();
-                                adapter.setContacts(contacts);
+                                new LoadingList().execute();
                             }
                         });
                 snackbar.show();

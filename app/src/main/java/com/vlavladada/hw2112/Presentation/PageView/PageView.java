@@ -19,11 +19,18 @@ import com.vlavladada.hw2112.model.Contact;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class PageView extends AppCompatActivity implements ContactInfoFragment.Callback{
-    private ViewPager myPager;
-    private ProgressBar progressBar;
+    @BindView(R.id.my_view_pager) ViewPager myPager;
+    @BindView(R.id.progressBar) ProgressBar progressBar;
+    @BindView(R.id.emptyTxt) TextView emptyMsg;
+
+    private Unbinder unbinder;
+
     ArrayList<Contact> contacts = new ArrayList<>();
-    private TextView emptyMsg;
     PageViewAdapter pageViewAdapter;
     String error;
 
@@ -32,15 +39,21 @@ public class PageView extends AppCompatActivity implements ContactInfoFragment.C
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_page_view);
-        emptyMsg = findViewById(R.id.emptyTxt);
-        progressBar = findViewById(R.id.progressBar);
+
+        unbinder=ButterKnife.bind(this);
+
         progressBar.setVisibility(View.GONE);
-        myPager = findViewById(R.id.my_view_pager);
 
         contacts=new ArrayList<>();
         pageViewAdapter=new PageViewAdapter(getSupportFragmentManager());
         pageViewAdapter.setContacts(contacts);
         myPager.setAdapter(pageViewAdapter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        unbinder.unbind();
+        super.onDestroy();
     }
 
     @Override

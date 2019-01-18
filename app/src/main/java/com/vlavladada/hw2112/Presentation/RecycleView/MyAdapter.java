@@ -12,6 +12,7 @@ import com.vlavladada.hw2112.R;
 import com.vlavladada.hw2112.model.Contact;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
@@ -44,10 +45,17 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         contacts.add(pos, contact);
         notifyItemInserted(pos);
     }
-    public  void move(int from, int to){
-        Contact contact=contacts.remove(from);
-        contacts.add(to, contact);
-        notifyItemMoved(from,to);
+    public  void move(int fromPosition, int toPosition){
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(contacts, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(contacts, i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition,toPosition);
     }
 
     public void setListener(MyClickListener listener) {

@@ -17,16 +17,53 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.vlavladada.hw2112.App;
 import com.vlavladada.hw2112.Data.HttpProvider;
 import com.vlavladada.hw2112.R;
 import com.vlavladada.hw2112.model.Contact;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 
 public class ContactInfoFragment extends Fragment {
-    private ViewGroup editWrapper, textWrapper, progressFrame;
-    private TextView nameTxt, lastNameTxt, emailTxt, phoneTxt, addressTxt, descTxt;
-    private EditText inputName, inputLastName, inputEmail, inputPhone, inputAddress, inputDesc;
-    private MenuItem doneItem, deleteItem, editItem;
+    @BindView(R.id.editWrapper)
+    ViewGroup editWrapper;
+    @BindView(R.id.textWrapper)
+    ViewGroup textWrapper;
+    @BindView(R.id.progressFrame)
+    ViewGroup progressFrame;
+    @BindView(R.id.nameTxt)
+    TextView nameTxt;
+    @BindView(R.id.lastNameTxt)
+    TextView lastNameTxt;
+    @BindView(R.id.emailTxt)
+    TextView emailTxt;
+    @BindView(R.id.phoneTxt)
+    TextView phoneTxt;
+    @BindView(R.id.addressTxt)
+    TextView addressTxt;
+    @BindView(R.id.descTxt)
+    TextView descTxt;
+
+    @BindView(R.id.inputName)
+    EditText inputName;
+    @BindView(R.id.inputLastName)
+    EditText inputLastName;
+    @BindView(R.id.inputEmail)
+    EditText inputEmail;
+    @BindView(R.id.inputPhone)
+    EditText inputPhone;
+    @BindView(R.id.inputAddress)
+    EditText inputAddress;
+    @BindView(R.id.inputDesc)
+    EditText inputDesc;
+
+    MenuItem doneItem, deleteItem, editItem;
+
+    private Unbinder unbinder;
+
     private boolean isProgress = false;
     private Contact curr;
     private int count;
@@ -42,13 +79,13 @@ public class ContactInfoFragment extends Fragment {
 
     }
 
-    public static ContactInfoFragment newInstance (Contact contact, Callback callback, int count){
+    public static ContactInfoFragment newInstance(Contact contact, Callback callback, int count) {
         ContactInfoFragment contactInfoFragment = new ContactInfoFragment();
         contactInfoFragment.curr = contact;
         contactInfoFragment.mode = VIEW_MODE;
         contactInfoFragment.id = contact.getId();
         contactInfoFragment.callback = callback;
-        contactInfoFragment.count=count;
+        contactInfoFragment.count = count;
         return contactInfoFragment;
     }
 
@@ -62,32 +99,21 @@ public class ContactInfoFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contact_info, container, false);
-        editWrapper = view.findViewById(R.id.editWrapper);
-        textWrapper = view.findViewById(R.id.textWrapper);
-        progressFrame = view.findViewById(R.id.progressFrame);
-        nameTxt = view.findViewById(R.id.nameTxt);
-        lastNameTxt = view.findViewById(R.id.lastNameTxt);
-        emailTxt = view.findViewById(R.id.emailTxt);
-        phoneTxt = view.findViewById(R.id.phoneTxt);
-        addressTxt = view.findViewById(R.id.addressTxt);
-        descTxt = view.findViewById(R.id.descTxt);
-        inputName = view.findViewById(R.id.inputName);
-        inputLastName = view.findViewById(R.id.inputLastName);
-        inputEmail = view.findViewById(R.id.inputEmail);
-        inputPhone = view.findViewById(R.id.inputPhone);
-        inputAddress = view.findViewById(R.id.inputAddress);
-        inputDesc = view.findViewById(R.id.inputDesc);
+
+        unbinder = ButterKnife.bind(this, view);
+
         progressFrame.setOnClickListener(null);
+
         Bundle args = getArguments();
-        if (args!=null) {
+        if (args != null) {
             pageView = false;
             mode = args.getInt("MODE");
-            Log.d("MY", "onCreateView: "+mode);
+            Log.d("MY", "onCreateView: " + mode);
             if (mode == VIEW_MODE) {
                 String tmp = args.getString("CONTACT");
-                Gson gson=new Gson();
-                Log.d("MY", "onCreateView: "+tmp);
-                curr = gson.fromJson(tmp,Contact.class);
+                Gson gson = new Gson();
+                Log.d("MY", "onCreateView: " + tmp);
+                curr = gson.fromJson(tmp, Contact.class);
                 id = curr.getId();
             } else {
                 curr = new Contact("", "", "", "", "", "", 0);
@@ -99,11 +125,18 @@ public class ContactInfoFragment extends Fragment {
     }
 
     @Override
+    public void onDestroyView() {
+        unbinder.unbind();
+        super.onDestroyView();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.sd_contact_menu, menu);
-        doneItem = menu.findItem(R.id.save_item);
-        editItem = menu.findItem(R.id.edit_item);
-        deleteItem = menu.findItem(R.id.delete_item);
+        doneItem=menu.findItem(R.id.save_item);
+        deleteItem=menu.findItem(R.id.delete_item);
+        editItem=menu.findItem(R.id.edit_item);
+
         if (mode == EDIT_MODE) {
             getCurrentData();
             showEditMode();
@@ -124,7 +157,7 @@ public class ContactInfoFragment extends Fragment {
             setCurrentData();
             showEditMode();
         } else if (item.getItemId() == R.id.delete_item && !isProgress) {
-            if (id!=0) {
+            if (id != 0) {
                 deleteCurrent();
             } else {
                 getFragmentManager().popBackStack();
@@ -139,7 +172,7 @@ public class ContactInfoFragment extends Fragment {
 
     private void saveCurrent() {
         getCurrentData();
-        if (curr.getId()==0) {
+        if (curr.getId() == 0) {
             new AddTask().execute();
         } else {
             new UpdateTask().execute();
@@ -349,22 +382,21 @@ public class ContactInfoFragment extends Fragment {
 //                    getActivity().finish();
 //
 //                }
-            }
-                else {
-                    showError(res);
-                }
+            } else {
+                showError(res);
             }
         }
+    }
 
 
-        public void setCallback(Callback callback) {
-            this.callback = callback;
-        }
+    public void setCallback(Callback callback) {
+        this.callback = callback;
+    }
 
-        public interface Callback {
-            void onRemoveClick();
+    public interface Callback {
+        void onRemoveClick();
 //        void emptyList();
-        }
+    }
 
 
 }
